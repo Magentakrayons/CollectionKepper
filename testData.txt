@@ -1,0 +1,6 @@
+Sneasal/Pokemon/Dark/70/85/Shining Legends/Common
+Plusle/Pokemon/Electric/70/33/Burning Shadows/Common
+Toxicroak/Pokemon/Psychic/100/57/Ultra Prism/Rare
+Hakamo-o/Pokemon/Dragon/90/99/Guardians Rising/Uncommon
+Multi Switch/Trainer/Item/129/Guardians Rising/Uncommon
+Mt. Coronet/Trainer/Stadium/130/Ultra Prism/Uncommon
