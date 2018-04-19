@@ -37,15 +37,17 @@ public class CollectionKeeper extends Application {
 
 			//File Menu
 			Menu menuFile = new Menu("File");
+			MenuItem menuItemCreateDatabase = new MenuItem("Create");
 			MenuItem menuItemLoadDatabase = new MenuItem("Load");
 			MenuItem menuItemSaveDatabase = new MenuItem("Save");
 			MenuItem menuItemExit = new MenuItem("Exit");
 			//Bind EventHandler to menu items
+			menuItemCreateDatabase.setOnAction(menuController);
 			menuItemLoadDatabase.setOnAction(menuController);
 			menuItemSaveDatabase.setOnAction(menuController);
 			menuItemExit.setOnAction(menuController);
 			//Bind MenuItems to Menu
-			menuFile.getItems().addAll(menuItemLoadDatabase, menuItemSaveDatabase, menuItemExit);
+			menuFile.getItems().addAll(menuItemCreateDatabase, menuItemLoadDatabase, menuItemSaveDatabase, menuItemExit);
 
 			//Edit Menu
 			Menu menuEdit = new Menu("Edit");
@@ -101,7 +103,9 @@ public class CollectionKeeper extends Application {
 				String text = item.getText();
 
 				//Handle event
-				if ("load".equalsIgnoreCase(text)) {
+				if ("create".equalsIgnoreCase(text)) {
+					System.out.println("create selected");
+				} else if ("load".equalsIgnoreCase(text)) {
 					System.out.println("load selected");
 				} else if ("save".equalsIgnoreCase(text)) {
 					System.out.println("save selected");
