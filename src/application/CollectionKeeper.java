@@ -1,9 +1,14 @@
 package application;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +19,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -21,6 +30,12 @@ import javafx.scene.layout.VBox;
 
 
 public class CollectionKeeper extends Application {
+
+	//Use for master list
+	public static ObservableList<ObservableList<String>> database;
+	//Use for modified search lists
+	public static ObservableList<ObservableList<String>> tempDatabase;
+
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -28,6 +43,10 @@ public class CollectionKeeper extends Application {
 			Scene scene = new Scene(root,900,600);
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setTitle("Collection Keeper");
+
+			/*
+			 * Creation of menuBar and buttons begins here.
+			 */
 
 			//Create menuBar and controllers
 			MenuBar menuBar = new MenuBar();
@@ -55,6 +74,12 @@ public class CollectionKeeper extends Application {
 			menuItemEditEntry.setOnAction(menuController);
 			menuEdit.getItems().add(menuItemEditEntry);
 
+			//Add New Item
+			Button buttonAddNew = new Button("Add New");
+			buttonAddNew.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+			buttonAddNew.setOnAction(buttonController);
+			buttonAddNew.setAlignment(Pos.TOP_RIGHT);
+
 			//Increase count
 			Button buttonPlusOne = new Button("+1");
 			buttonPlusOne.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
@@ -67,11 +92,8 @@ public class CollectionKeeper extends Application {
 			buttonMinusOne.setOnAction(buttonController);
 			buttonPlusOne.setAlignment(Pos.TOP_RIGHT);
 
-			//Make buttons for top bar
-			HBox hBox = new HBox(menuBar, buttonPlusOne, buttonMinusOne);
-
-
 			//Add all items to Top of BorderPane
+			HBox hBox = new HBox(menuBar, buttonAddNew, buttonPlusOne, buttonMinusOne);
 			hBox.setHgrow(menuBar, Priority.ALWAYS);
 			hBox.setHgrow(buttonPlusOne, Priority.NEVER);
 			hBox.setHgrow(buttonMinusOne, Priority.NEVER);
@@ -79,6 +101,42 @@ public class CollectionKeeper extends Application {
 			menuBar.getMenus().addAll(menuFile, menuEdit);
 
 
+			/*
+			 * Creation of TableViews begins here
+			 */
+
+			//Create TableView
+
+			//test database method
+			database = createDatabase();
+
+			/* Database is procedurally added to table. Creates columns, then adds items by row.
+			 * "Col" + colcount + 1 will need to be changed so that it matches the attribute
+			 * in question. Columns can be swapped around as well, so the problem gets more complicated.
+			 * Maybe we can keep a category regex at the top of database, using @ to
+			 * distinguish that regex as so:
+			 *
+			 * @ Count/Name/Category/Type/HP/Set Number/Set Name/Rarity
+			 * 0/Sneasal/Pokemon/Dark/70/85/Shining Legends/Common
+			 *
+			 * We could just update the new column categories at save time.
+			 * Additionally, we will have to add an additional column to implement the +1/-1 function.
+			 */
+			TableView<ObservableList<String>> mainTable = new TableView();
+			for (int i = 0; i < database.get(0).size(); i++) {
+				final int colCount = i;
+				final TableColumn<ObservableList<String>, String> column = new TableColumn<>("Col " + (colCount + 1));
+				column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(colCount)));
+				mainTable.getColumns().add(column);
+
+			}
+			for (ObservableList<String> row : database) {
+				mainTable.getItems().add(row);
+			}
+			root.setCenter(mainTable);
+
+			//adds cute girl to the stage : ^)
+			primaryStage.getIcons().add(new Image("mahira.jpg"));
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -88,12 +146,9 @@ public class CollectionKeeper extends Application {
 
 	public static void main(String[] args) {
 		launch(args);
-
-		ArrayList<ArrayList<String>> database = new ArrayList<ArrayList<String>>();
-
 	}
 
-
+	//Println stubs need to be implemented
 	//Handler for MenuBar
 	private EventHandler<ActionEvent> MenuBarController()  {
 		return new EventHandler<ActionEvent>() {
@@ -118,6 +173,8 @@ public class CollectionKeeper extends Application {
 		};
 	}
 
+	//Println stubs need to be implemented
+	//Handler for Buttons
 	private EventHandler<ActionEvent> ButtonController() {
 		return new EventHandler<ActionEvent>() {
 
@@ -126,6 +183,9 @@ public class CollectionKeeper extends Application {
 				String text = item.getText();
 
 				//Handle event
+				if ("add new".equalsIgnoreCase(text)) {
+					System.out.println("add new selected");
+				}
 				if ("+1".equalsIgnoreCase(text)) {
 					System.out.println("+1");
 				} else if ("-1".equalsIgnoreCase(text)) {
@@ -133,6 +193,30 @@ public class CollectionKeeper extends Application {
 				}
 			}
 		};
+	}
+
+	//This method exists for testing database with table. Please remove it later.
+	public static ObservableList createDatabase() {
+		// TODO Auto-generated method stub
+	File file = new File("testData.txt");
+	try {
+		Scanner s = new Scanner(file);
+		ObservableList<ObservableList<String>> db = FXCollections.observableArrayList();
+		while (s.hasNextLine()) {
+			String text = s.nextLine();
+			String[] tokens = text.split("/");
+			ObservableList<String> tempList = FXCollections.observableArrayList();
+			for(String item: tokens) {
+				tempList.add(item);
+			}
+			db.add(tempList);
+		}
+		return db;
+	} catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return null;
 	}
 
 }
