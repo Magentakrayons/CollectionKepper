@@ -9,21 +9,27 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -32,9 +38,11 @@ import javafx.scene.layout.VBox;
 public class CollectionKeeper extends Application {
 
 	//Use for master list
-	public static ObservableList<ObservableList<String>> database;
-	//Use for modified search lists
-	public static ObservableList<ObservableList<String>> tempDatabase;
+	public static ObservableList<ObservableList<Object>> database = FXCollections.observableArrayList();
+	//Use for column headers
+	public static ObservableList<String> categoryList = FXCollections.observableArrayList();
+	public static TableView<ObservableList<Object>> mainTable = new TableView();
+
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -100,39 +108,6 @@ public class CollectionKeeper extends Application {
 			root.setTop(hBox);
 			menuBar.getMenus().addAll(menuFile, menuEdit);
 
-
-			/*
-			 * Creation of TableViews begins here
-			 */
-
-			//Create TableView
-
-			//test database method
-			database = createDatabase();
-
-			/* Database is procedurally added to table. Creates columns, then adds items by row.
-			 * "Col" + colcount + 1 will need to be changed so that it matches the attribute
-			 * in question. Columns can be swapped around as well, so the problem gets more complicated.
-			 * Maybe we can keep a category regex at the top of database, using @ to
-			 * distinguish that regex as so:
-			 *
-			 * @ Count/Name/Category/Type/HP/Set Number/Set Name/Rarity
-			 * 0/Sneasal/Pokemon/Dark/70/85/Shining Legends/Common
-			 *
-			 * We could just update the new column categories at save time.
-			 * Additionally, we will have to add an additional column to implement the +1/-1 function.
-			 */
-			TableView<ObservableList<String>> mainTable = new TableView();
-			for (int i = 0; i < database.get(0).size(); i++) {
-				final int colCount = i;
-				final TableColumn<ObservableList<String>, String> column = new TableColumn<>("Col " + (colCount + 1));
-				column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(colCount)));
-				mainTable.getColumns().add(column);
-
-			}
-			for (ObservableList<String> row : database) {
-				mainTable.getItems().add(row);
-			}
 			root.setCenter(mainTable);
 
 			//adds cute girl to the stage : ^)
@@ -161,13 +136,33 @@ public class CollectionKeeper extends Application {
 				if ("create".equalsIgnoreCase(text)) {
 					System.out.println("create selected");
 				} else if ("load".equalsIgnoreCase(text)) {
-					System.out.println("load selected");
+					//refreshes working database and categories to empty
+					database.clear();
+					categoryList.clear();
+					mainTable.getItems().clear();
+					mainTable.getColumns().clear();
+
+					//test database method
+					database = createDatabase();
+
+
+					for (int i = 0; i < database.get(0).size(); i++) {
+						final int colCount = i;
+						final TableColumn<ObservableList<Object>, Object> column = new TableColumn<>(String.valueOf(categoryList.get(i)));
+						column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(colCount)));
+						mainTable.getColumns().add(column);
+
+					}
+					for (int i = 0; i < database.size(); i++) {
+						mainTable.getItems().add(database.get(i));
+					}
 				} else if ("save".equalsIgnoreCase(text)) {
 					System.out.println("save selected");
 				} else if ("exit".equalsIgnoreCase(text)) {
 					Platform.exit();
 				} else if ("edit entry".equalsIgnoreCase(text)) {
-					System.out.println("edit item selected");
+					int index = database.indexOf(mainTable.getSelectionModel().getSelectedItem());
+					editEntry(database.get(index));
 				}
 			}
 		};
@@ -185,15 +180,87 @@ public class CollectionKeeper extends Application {
 				//Handle event
 				if ("add new".equalsIgnoreCase(text)) {
 					System.out.println("add new selected");
+					//debugging lines
+					System.out.println(database);
+					System.out.println(mainTable.getSelectionModel().getSelectedItem());
+					System.out.println(database.indexOf(mainTable.getSelectionModel().getSelectedItem()));
 				}
 				if ("+1".equalsIgnoreCase(text)) {
-					System.out.println("+1");
+					int index = database.indexOf(mainTable.getSelectionModel().getSelectedItem());
+					int count = (int) database.get(index).get(0) + 1;
+					database.get(index).set(0, count);
+					mainTable.refresh();
 				} else if ("-1".equalsIgnoreCase(text)) {
-					System.out.println("-1");
+					int index = database.indexOf(mainTable.getSelectionModel().getSelectedItem());
+					int count = (int) database.get(index).get(0) - 1;
+					database.get(index).set(0, count);
+					mainTable.refresh();
 				}
 			}
 		};
 	}
+
+	//Edits an entry in the table
+	private void editEntry(ObservableList<Object> entry) {
+		//build window
+		Stage editStage = new Stage();
+		editStage.setTitle("Edit Entry");
+		editStage.getIcons().add(new Image("mahira.jpg"));
+		GridPane editPane = new GridPane();
+		editPane.setHgap(50);
+		editPane.setVgap(5);
+		editPane.setPadding(new Insets(5,5,5,5));
+		Scene scene = new Scene(editPane, 250, (30*entry.size() + 70));
+
+
+		//Populate Grid
+		//Make categories
+		for (int i = 0; i < database.get(0).size(); i++) {
+			Label regex = new Label(categoryList.get(i));
+			editPane.add(regex, 0, i);
+		}
+		//Make Textfields
+		ObservableList<TextField> textBoxList = FXCollections.observableArrayList();
+		for (int i = 0; i < entry.size(); i++) {
+			String text = String.valueOf(entry.get(i));
+			TextField textField = new TextField(text);
+			editPane.add(textField, 1, i);
+			textBoxList.add(textField);
+		}
+
+		//add confirm button and method for handling confirmed changes
+		Button confirmButton = new Button("Confirm Changes");
+		confirmButton.setMinSize(40, 25);
+		confirmButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				for (int i = 0; i < textBoxList.size(); i++) {
+					try { //writes as int if all numbers
+						int convertedInt = Integer.parseInt((String) textBoxList.get(i).getText());
+						entry.set(i, convertedInt);
+					} catch (NumberFormatException e) { // writes as string if has non-int characters
+						entry.set(i, textBoxList.get(i).getText());
+					}
+				}
+				editStage.hide();
+				mainTable.refresh();
+			}
+		});
+
+
+		//finalize window
+		editPane.add(confirmButton, 1, editPane.getChildren().size());
+		editPane.setAlignment(Pos.TOP_CENTER);
+
+		editStage.setScene(scene);
+		editStage.show();
+	}
+
+
+	//Add new Entry
+
+
+
 
 	//This method exists for testing database with table. Please remove it later.
 	public static ObservableList createDatabase() {
@@ -201,15 +268,35 @@ public class CollectionKeeper extends Application {
 	File file = new File("testData.txt");
 	try {
 		Scanner s = new Scanner(file);
-		ObservableList<ObservableList<String>> db = FXCollections.observableArrayList();
+		ObservableList<ObservableList<Object>> db = FXCollections.observableArrayList();
+		boolean firstpass = true;
 		while (s.hasNextLine()) {
 			String text = s.nextLine();
 			String[] tokens = text.split("/");
-			ObservableList<String> tempList = FXCollections.observableArrayList();
+			ObservableList<Object> tempList = FXCollections.observableArrayList();
 			for(String item: tokens) {
 				tempList.add(item);
 			}
-			db.add(tempList);
+			if (firstpass) {
+				for (Object category : tempList) {
+					categoryList.add(category.toString());
+				}
+				firstpass = false;
+			} else {
+				db.add(tempList);
+			}
+		}
+
+		//fix numbers to ints
+		for (int i = 0; i < db.size(); i++) {
+			for (int j = 0; j < categoryList.size(); j++) {
+				try {
+					int convertedInt = Integer.parseInt((String) db.get(i).get(j));
+					db.get(i).set(j, convertedInt);
+				} catch (NumberFormatException e) {
+					//pass
+				}
+			}
 		}
 		return db;
 	} catch (FileNotFoundException e) {
