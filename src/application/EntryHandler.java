@@ -158,14 +158,18 @@ public class EntryHandler {
 							int convertedInt = Integer.parseInt((String) textBoxList.get(i).getText());
 							newEntry.add(convertedInt);
 						} catch (NumberFormatException e) { // writes as string if has non-int characters
-							newEntry.add(textBoxList.get(i).getText());
+							if (textBoxList.get(i).getText().equals("")) {
+								newEntry.add(null);
+							} else {
+								newEntry.add(textBoxList.get(i).getText());
+							}
 						}
 					}
 					//add new entry to table
 					CollectionKeeper.database.add(newEntry);
 
 					//refresh list based on whether search bar has text
-					if (!CollectionKeeper.searchBar.getText().equals("") || CollectionKeeper.searchBar.textProperty() != null) {
+					if (!CollectionKeeper.searchBar.getText().equals("") || CollectionKeeper.searchBar.textProperty() == null) {
 						//add to current view
 						CollectionKeeper.filteredList.add(newEntry);
 						CollectionKeeper.mainTable.setItems(CollectionKeeper.filteredList);
