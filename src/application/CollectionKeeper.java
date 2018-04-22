@@ -42,11 +42,16 @@ public class CollectionKeeper extends Application {
 
 	//Use for master list
 	public static ObservableList<ObservableList<Object>> database = FXCollections.observableArrayList();
-	//not hooked up yet
+	//Use for non-filtered
 	public static FilteredList<ObservableList<Object>> searchDatabase = new FilteredList<>(database, p -> true);
-	//Use for column headers
+	public static SortedList<ObservableList<Object>> sortedDatabase = new SortedList<>(searchDatabase);
+	public static ObservableList<ObservableList<Object>> filteredList = FXCollections.observableArrayList();
+	public static TextField searchBar;
+	public static Label statusBar;
+	//Use for columns
 	public static ObservableList<String> categoryList = FXCollections.observableArrayList();
-	public static TableView<ObservableList<Object>> mainTable = new TableView();
+
+	public static TableView<ObservableList<Object>> mainTable = new TableView<>(searchDatabase);
 
 	private DatabaseHandler databaseManager = new DatabaseHandler();
 	private EntryHandler entryHandler = new EntryHandler();
@@ -58,7 +63,7 @@ public class CollectionKeeper extends Application {
 			 * Begin setting up primaryStage.
 			 */
 			BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,900,600);
+			Scene scene = new Scene(root,600,400);
 			primaryStage.setTitle("Collection Keeper");
 
 			//Causes all windows to close if primaryStage is closed
@@ -118,31 +123,42 @@ public class CollectionKeeper extends Application {
 			buttonMinusOne.setOnAction(buttonController);
 			buttonPlusOne.setAlignment(Pos.TOP_RIGHT);
 
+			//Status Bar
+			statusBar = new Label();
+			statusBar.setText("Waiting...");
+			statusBar.setAlignment(Pos.BOTTOM_LEFT);
+
 			/*
 			 * Setup of mainTable filtering begins here.
 			 */
 
 			//Set up FilterField
-			TextField searchBar = new TextField();
+			searchBar = new TextField();
 			searchBar.setMinSize(200, TextField.USE_PREF_SIZE);
 			searchBar.setAlignment(Pos.TOP_CENTER);
+
+			//set filter
 			searchBar.textProperty().addListener((observable, oldValue, newValue) -> {
-				searchDatabase.setPredicate(Object -> {
-					//If Filter text is empty, display all items
-					if (newValue == null || newValue.isEmpty()) {
-						System.out.println("now empty");
-						return true;
-					}
-					String filterText = String.valueOf(searchBar.getText()).toLowerCase();
-					//compare filtered text to all entries
-					for (ObservableList<Object> entry : database) {
-						if(String.valueOf(entry).toLowerCase().contains(filterText)) {
-							return true; // Filter matches
+				//If Filter text is empty, display all items
+				if (newValue == null || newValue.isEmpty()) {
+					mainTable.setItems(sortedDatabase);
+				}
+				String filterText = String.valueOf(searchBar.getText()).toLowerCase();
+				filteredList = FXCollections.observableArrayList();
+				//compare filtered text to all entries
+				long count = mainTable.getColumns().stream().count();
+				for (int i = 0; i < mainTable.getItems().size(); i++) {
+					for (int j = 0; j < count; j++) {
+						String entry = "" + mainTable.getColumns().get(j).getCellData(i);
+						if (entry.toLowerCase().contains(filterText)) {
+							filteredList.add(mainTable.getItems().get(i));
+							break;
 						}
 					}
-					return false;
-				});
+				}
+				mainTable.setItems(filteredList);
 			});
+			sortedDatabase.comparatorProperty().bind(mainTable.comparatorProperty());
 
 			/*
 			 * Finishing configuration of primaryStage begins here.
@@ -161,9 +177,12 @@ public class CollectionKeeper extends Application {
 			menuBar.getMenus().addAll(menuFile);
 
 			root.setCenter(mainTable);
+			root.setBottom(statusBar);
 
 			primaryStage.getIcons().add(new Image("mahira.jpg"));
 			primaryStage.setScene(scene);
+			primaryStage.setMinHeight(100);
+			primaryStage.setMinWidth(470);
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -204,6 +223,8 @@ public class CollectionKeeper extends Application {
 						mainTable.getItems().clear();
 						mainTable.getColumns().clear();
 						database = tempDatabase;
+						searchDatabase = new FilteredList<>(database, p -> true);
+						sortedDatabase = new SortedList<>(searchDatabase);
 
 						for (int i = 0; i < database.get(0).size(); i++) {
 							final int colCount = i;
@@ -212,13 +233,8 @@ public class CollectionKeeper extends Application {
 							mainTable.getColumns().add(column);
 
 						}
-						mainTable.setItems(database);
-
-						/*for (int i = 0; i < database.size(); i++) {
-							mainTable.getItems().add(database.get(i));
-						}
-						*/
-
+						sortedDatabase.comparatorProperty().bind(mainTable.comparatorProperty());
+						mainTable.setItems(sortedDatabase);
 					}
 				} else if ("save".equalsIgnoreCase(text)) {
 					try {
