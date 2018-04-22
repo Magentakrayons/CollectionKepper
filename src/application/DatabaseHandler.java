@@ -52,7 +52,7 @@ public class DatabaseHandler {
 		 */
 
 		// create window components
-		Label prompt = new Label("Enter number of categories.");
+		Label prompt = new Label("Enter number of columns.");
 		prompt.setWrapText(true);
 		prompt.setTextAlignment(TextAlignment.JUSTIFY);
 		prompt.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
@@ -84,7 +84,7 @@ public class DatabaseHandler {
 				 */
 
 				//create window components
-				Label prompt2 = new Label("Enter category names.");
+				Label prompt2 = new Label("Enter column names.");
 				ObservableList<TextField> textList = FXCollections.observableArrayList();
 				for(int i = 0; i < Integer.parseInt(numberEntry.getText()); i++) {
 					TextField newText = new TextField();
@@ -171,6 +171,7 @@ public class DatabaseHandler {
 		Stage stage = new Stage();
 
 		//get selected file
+		CollectionKeeper.statusBar.setText("Loading...");
 		File selectedFile = fileChooser.showOpenDialog(stage);
 		if (selectedFile != null) {
 			try {
@@ -182,6 +183,9 @@ public class DatabaseHandler {
 					String[] tokens = text.split("/");
 					ObservableList<Object> tempList = FXCollections.observableArrayList();
 					for(String item: tokens) {
+						if (item.equals("null")) {
+							item = "";
+						}
 						tempList.add(item);
 					}
 					if (firstpass) {
@@ -230,6 +234,7 @@ public class DatabaseHandler {
 		Stage stage = new Stage();
 
 		//get selected file
+		CollectionKeeper.statusBar.setText("Saving...");
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		if (selectedFile != null) {
 			try {
