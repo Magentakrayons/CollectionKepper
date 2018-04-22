@@ -119,7 +119,9 @@ public class DatabaseHandler {
 							CollectionKeeper.mainTable.getColumns().add(column);
 
 						}
-
+						CollectionKeeper.sortedDatabase.comparatorProperty().bind(CollectionKeeper.mainTable.comparatorProperty());
+						CollectionKeeper.mainTable.setItems(CollectionKeeper.sortedDatabase);
+						CollectionKeeper.statusBar.setText("New collection has been created!");
 						createStage.hide();
 					}
 				});
@@ -205,6 +207,7 @@ public class DatabaseHandler {
 						}
 					}
 				}
+				CollectionKeeper.statusBar.setText("Successfully loaded!");
 				return db;
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -245,30 +248,7 @@ public class DatabaseHandler {
 					writer.write(System.lineSeparator()); // newline
 				}
 				writer.close();
-				//display success window
-				stage.setTitle("Done Saving");
-				stage.getIcons().add(new Image("mahira.jpg"));
-				BorderPane confirmPane = new BorderPane();
-
-				Label doneLabel = new Label("Database successfully saved.");
-				Button okButton = new Button("OK");
-				okButton.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
-				okButton.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent event) {
-						stage.hide();
-					}
-				});
-				VBox vBox = new VBox(doneLabel, okButton);
-				vBox.setPadding(new Insets(10,10,10,10));
-				vBox.setSpacing(10);
-				vBox.setAlignment(Pos.CENTER);
-				confirmPane.setPadding(new Insets(10,10,10,10));
-				confirmPane.setCenter(vBox);
-
-				Scene scene = new Scene(confirmPane);
-				stage.setScene(scene);
-				stage.show();
+				CollectionKeeper.statusBar.setText("Successfully saved!");
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
