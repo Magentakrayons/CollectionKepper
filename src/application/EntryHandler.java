@@ -161,12 +161,22 @@ public class EntryHandler {
 							newEntry.add(textBoxList.get(i).getText());
 						}
 					}
-					//add new entry to table, entry will be at end of list
+					//add new entry to table
 					CollectionKeeper.database.add(newEntry);
-					
-					addStage.hide();
+
+					//refresh list based on whether search bar has text
+					if (!CollectionKeeper.searchBar.getText().equals("") || CollectionKeeper.searchBar.textProperty() != null) {
+						//add to current view
+						CollectionKeeper.filteredList.add(newEntry);
+						CollectionKeeper.mainTable.setItems(CollectionKeeper.filteredList);
+					} else {
+						CollectionKeeper.mainTable.setItems(CollectionKeeper.sortedDatabase);
 					}
+					CollectionKeeper.statusBar.setText("Added new item to collection!");
+					addStage.hide();
+
 				}
+			}
 		});
 
 		//finalize window
@@ -180,6 +190,13 @@ public class EntryHandler {
 
 	public void deleteEntry() {
 		CollectionKeeper.database.remove(CollectionKeeper.mainTable.getSelectionModel().getSelectedItem());
-		CollectionKeeper.mainTable.refresh();
+		if (CollectionKeeper.searchBar.getText().equals("") || CollectionKeeper.searchBar.textProperty() == null) {
+			CollectionKeeper.mainTable.setItems(CollectionKeeper.sortedDatabase);
+			CollectionKeeper.statusBar.setText("Deleted item from collection...");
+		} else {
+			CollectionKeeper.filteredList.remove(CollectionKeeper.mainTable.getSelectionModel().getSelectedItem());
+			CollectionKeeper.mainTable.setItems(CollectionKeeper.filteredList);
+			CollectionKeeper.statusBar.setText("Deleted item from collection...");
+		}
 	}
 }
