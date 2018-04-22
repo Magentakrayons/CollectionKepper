@@ -36,6 +36,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 
 public class CollectionKeeper extends Application {
@@ -53,6 +54,8 @@ public class CollectionKeeper extends Application {
 
 	public static TableView<ObservableList<Object>> mainTable = new TableView<>(searchDatabase);
 
+	public static BorderPane root;
+
 	private DatabaseHandler databaseManager = new DatabaseHandler();
 	private EntryHandler entryHandler = new EntryHandler();
 
@@ -62,7 +65,7 @@ public class CollectionKeeper extends Application {
 			/*
 			 * Begin setting up primaryStage.
 			 */
-			BorderPane root = new BorderPane();
+			root = new BorderPane();
 			Scene scene = new Scene(root,600,400);
 			primaryStage.setTitle("Collection Keeper");
 
@@ -123,6 +126,14 @@ public class CollectionKeeper extends Application {
 			buttonMinusOne.setOnAction(buttonController);
 			buttonPlusOne.setAlignment(Pos.TOP_RIGHT);
 
+			//Welcome Message
+			Label welcomeText = new Label("Welcome to your Collection Keeper! \n\n"
+					+ "Please Create or Load a Collection from the File Menu.");
+			welcomeText.setWrapText(true);
+			welcomeText.setAlignment(Pos.CENTER);
+			welcomeText.setTextAlignment(TextAlignment.JUSTIFY);
+
+
 			//Status Bar
 			statusBar = new Label();
 			statusBar.setText("Waiting...");
@@ -176,7 +187,7 @@ public class CollectionKeeper extends Application {
 			root.setTop(hBox);
 			menuBar.getMenus().addAll(menuFile);
 
-			root.setCenter(mainTable);
+			root.setCenter(welcomeText);
 			root.setBottom(statusBar);
 
 			primaryStage.getIcons().add(new Image("mahira.jpg"));
@@ -235,6 +246,8 @@ public class CollectionKeeper extends Application {
 						}
 						sortedDatabase.comparatorProperty().bind(mainTable.comparatorProperty());
 						mainTable.setItems(sortedDatabase);
+						root.setCenter(mainTable);
+
 					}
 				} else if ("save".equalsIgnoreCase(text)) {
 					try {
