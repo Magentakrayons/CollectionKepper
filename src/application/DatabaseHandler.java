@@ -108,8 +108,10 @@ public class DatabaseHandler {
 						//Count is added by default
 						CollectionKeeper.categoryList.add("Count");
 						for (int i = 0; i < textList.size(); i++) {
-							CollectionKeeper.categoryList.add(textList.get(i).getText());
-
+							String text = textList.get(i).getText();
+							if (!text.equals("")) {
+								CollectionKeeper.categoryList.add(textList.get(i).getText());
+							}
 						}
 						//rebuild table
 						for (int i = 0; i < CollectionKeeper.categoryList.size(); i++) {
