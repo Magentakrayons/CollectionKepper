@@ -125,6 +125,7 @@ public class DatabaseHandler {
 						CollectionKeeper.mainTable.setItems(CollectionKeeper.sortedDatabase);
 						CollectionKeeper.statusBar.setText("New collection has been created!");
 						createStage.hide();
+						CollectionKeeper.root.setCenter(CollectionKeeper.mainTable);
 					}
 				});
 
