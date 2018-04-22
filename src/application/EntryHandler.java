@@ -163,8 +163,7 @@ public class EntryHandler {
 					}
 					//add new entry to table, entry will be at end of list
 					CollectionKeeper.database.add(newEntry);
-					CollectionKeeper.mainTable.getItems().add(CollectionKeeper.database.get(CollectionKeeper.database.size()-1));
-
+					
 					addStage.hide();
 					}
 				}
