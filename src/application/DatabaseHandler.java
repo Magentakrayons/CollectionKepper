@@ -1,3 +1,16 @@
+/* Contributors: Mark Olegario
+ * File Creation Date: April 22nd, 2018
+ * Finalization Date: May 2, 2018
+ * File Name: DatabaseHandler.java
+ *
+ * Program Hierarchy: Database Modification Module
+ *
+ * Purpose: This class contains all methods which interact with the entire database.
+ * Functions include saving, loading and creating a new database.
+ * Entry specific modifications are not contained within this class.
+ */
+
+
 package application;
 
 import java.io.File;
@@ -33,7 +46,9 @@ import javafx.stage.Stage;
 
 public class DatabaseHandler {
 
-
+	/*
+	 * Creates and initializes a new working database created from user input.
+	 */
 	public void createNewDatabase() {
 		//build window
 		Stage createStage = new Stage();
@@ -162,6 +177,9 @@ public class DatabaseHandler {
 		createStage.show();
 	}
 
+	/*
+	 * Loads a previous database selected from FileChooser.
+	 */
 	public static ObservableList loadDatabase() {
 		//create filechooser
 		FileChooser fileChooser = new FileChooser();
@@ -225,6 +243,9 @@ public class DatabaseHandler {
 		return null;
 	}
 
+	/*
+	 * Saves the database based on user selected location in FileChooser.
+	 */
 	public void saveDatabase() throws IOException {
 		//create filechooser
 		FileChooser fileChooser = new FileChooser();
