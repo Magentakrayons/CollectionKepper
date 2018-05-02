@@ -1,3 +1,18 @@
+/* Contributors: Mark Olegario
+ * File Creation Date: April 19th, 2018
+ * Finalization Date: May 2, 2018
+ * File Name: CollectionKeeper.java
+ *
+ * Program Hierarchy: Main Program Window
+ *
+ * Purpose: This class contains the main window and contains references to all supplemental class components.
+ * The class uses Stage and Scenes to create visual windows the user may interact with.
+ * The primary data structure utilizes are variants of ArrayLists, including Observable, Filtered and Sorted List.
+ * SortedList requires a FilteredList, which requires an ObservableList. Thus, we have created 4 Lists.
+ * The decision to separate the master database from modifiable variants of the list is to prevent direct modification of the list
+ * while search and sorting. Only supplemental classes such as DatabaseHandler.java and EntryHandler.java are permitted to modify entries directly.
+ */
+
 package application;
 
 import java.io.File;
@@ -38,28 +53,32 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
-
 public class CollectionKeeper extends Application {
 
-	//Use for master list
+	//The Master Database
 	public static ObservableList<ObservableList<Object>> database = FXCollections.observableArrayList();
-	//Use for non-filtered
+	//Additional Lists created to enable sorting and searching
 	public static FilteredList<ObservableList<Object>> searchDatabase = new FilteredList<>(database, p -> true);
 	public static SortedList<ObservableList<Object>> sortedDatabase = new SortedList<>(searchDatabase);
 	public static ObservableList<ObservableList<Object>> filteredList = FXCollections.observableArrayList();
+	//Components of the main window that can be modified by other classes
 	public static TextField searchBar;
 	public static Label statusBar;
-	//Use for columns
-	public static ObservableList<String> categoryList = FXCollections.observableArrayList();
-
-	public static TableView<ObservableList<Object>> mainTable = new TableView<>(searchDatabase);
-
 	public static BorderPane root;
+
+	public static ObservableList<String> categoryList = FXCollections.observableArrayList();
+	public static TableView<ObservableList<Object>> mainTable = new TableView<>(searchDatabase);
 
 	private DatabaseHandler databaseManager = new DatabaseHandler();
 	private EntryHandler entryHandler = new EntryHandler();
 
 	@Override
+	/*
+	 * The initialization function of the program. Creates main window and initializes all variables.
+	 * param: primaryStage - the initial Stage created at launch of the program.
+	 * (non-Javadoc)
+	 * @see javafx.application.Application#start(javafx.stage.Stage)
+	 */
 	public void start(Stage primaryStage) {
 		try {
 			/*
@@ -211,7 +230,10 @@ public class CollectionKeeper extends Application {
 		launch(args);
 	}
 
-	//Handler for MenuBar
+	/*
+	 * EventHandler class for MenuBar and Menu items.
+	 * return: EventHandler<ActionEvent>() - The action to perform on selection.
+	 */
 	private EventHandler<ActionEvent> MenuBarController()  {
 		return new EventHandler<ActionEvent>() {
 
@@ -262,8 +284,10 @@ public class CollectionKeeper extends Application {
 		};
 	}
 
-	//Println stubs need to be implemented
-	//Handler for Buttons
+	/*
+	 * EventHandler function for Buttons.
+	 * return: EventHandler<ActionEvent>() - for when buttons are pressed.
+	 */
 	private EventHandler<ActionEvent> ButtonController() {
 		return new EventHandler<ActionEvent>() {
 
