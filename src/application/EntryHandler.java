@@ -1,3 +1,15 @@
+/* Contributors: Mark Olegario
+ * File Creation Date: April 22nd, 2018
+ * Finalization Date: May 2, 2018
+ * File Name: EntryHandler.java
+ *
+ * Program Hierarchy: Entry Modification Module
+ *
+ * Purpose: This class contains all methods which interact with specific entries within the database.
+ * Functions include adding a new entry, modifying existing entries, and deleting old entries.
+ * Functions regarding the database as a whole are not contained within this class.
+ */
+
 package application;
 
 import javafx.collections.FXCollections;
@@ -18,7 +30,10 @@ import javafx.stage.Stage;
 
 public class EntryHandler {
 
-	//Edits an entry in the table
+	/*
+	 * Function responsible for handling entry modification to the database.
+	 * param: ObservableList<Object> entry - the selected entry which elements are to be modified.
+	 */
 	public void editEntry(ObservableList<Object> entry) {
 		//build window
 		Stage editStage = new Stage();
@@ -79,7 +94,10 @@ public class EntryHandler {
 		editStage.show();
 	}
 
-	//Add new Entry
+	/*
+	 * Function responsible for adding new entries to the main database in CollectionKeeper().
+	 * Internally fetches user input and constructs new ObservableList<Object>.
+	 */
 	public void addEntry() {
 		//build window
 		Stage addStage = new Stage();
@@ -192,6 +210,9 @@ public class EntryHandler {
 		addStage.show();
 	}
 
+	/*
+	 * Deletes selected entry from main database in CollectionKeeper().
+	 */
 	public void deleteEntry() {
 		CollectionKeeper.database.remove(CollectionKeeper.mainTable.getSelectionModel().getSelectedItem());
 		if (CollectionKeeper.searchBar.getText().equals("") || CollectionKeeper.searchBar.textProperty() == null) {
